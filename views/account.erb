@@ -1,0 +1,85 @@
+<header>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <img class="img-responsive" src="img/profile.png" alt="">
+                    <div class="intro-text">
+                        <span class="name">Welcome, <%= @user.name %></span>
+                        <hr class="star-light">
+                        <span class="skills">Check your balance, make deposits, make withdrawals and have fun</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+<section id="portfolio">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>Account Functions</h2>
+                    <hr class="star-primary">
+                </div>
+            </div>
+                <div class="col-sm-4 portfolio-item">
+                    <a href="/createAccount" class="portfolio-link" data-toggle="modal">
+                        <div class="caption">
+                            <div class="caption-content">
+                                <i class="fa fa-search-plus fa-3x"></i>
+                            </div>
+                        </div>
+                        <img src="img/one.jpg" class="img-responsive" alt="">
+                    </a>
+                </div>
+                <div class="col-sm-4 portfolio-item">
+                    <a href="/deposit" class="portfolio-link" data-toggle="modal">
+                        <div class="caption">
+                            <div class="caption-content">
+                                <i class="fa fa-search-plus fa-3x"></i>
+                            </div>
+                        </div>
+                        <img src="img/two.jpg" class="img-responsive" alt="">
+                    </a>
+                </div>
+                <div class="col-sm-4 portfolio-item">
+                    <a href="/withdraw" class="portfolio-link" data-toggle="modal">
+                        <div class="caption">
+                            <div class="caption-content">
+                                <i class="fa fa-search-plus fa-3x"></i>
+                            </div>
+                        </div>
+                        <img src="img/three.jpg" class="img-responsive" alt="">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="success" id="about">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>Accounts</h2>
+                    <hr class="star-light">
+                </div>
+            </div>
+            <div class="row">
+            <% @accounts.each do |account| %>
+                <% i = 1 
+                    def format(num)
+                        num = num.to_s.split(".")
+                        num[1] = num[1][0..1]
+                        num[0] = num[0].reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse!
+                        num.join(".")
+                    end %>
+                <div class="col-lg-4">
+                    <p><%= account.type %> Account</p>
+                    <p>Account Number: <%= account.number %></p>
+                    <p>Balance: ₦ <%= format(account.balance) %></p>
+                    <p>Last Transaction: <%= account.last_transaction %></p>
+                 </div>
+                 <% i+=1 %>
+                 <% end %>
+            </div>
+        </div>
+    </section>

@@ -1,0 +1,56 @@
+<section id="withdrawal">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>Create Account</h2>
+                    <hr class="star-primary">
+                </div>
+            </div>
+            <% if @msg %>
+            <span class="alert alert-warning"><%= @msg[1] %></span>
+            <% end %>
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+                    <form name="bankForm" method="POST" action="/make_withdrawal" id="bankForm">
+                        <div class="row control-group">
+                            <div class="form-group col-xs-12 floating-label-form-group controls">
+                                <label>Account</label>
+                                <select class="form-control" placeholder="Account Type" id="account" name="withdrawal[account]" required data-validation-required-message="Please enter account type.">
+                                    <option value="">Select Account Type</option>
+                                    <% @accounts.each do |account| %>
+                                    <option value="<%= account.id %>"><%= account.type%> Account (<%= account.number %>)</option>
+                                    <% end %>
+                                <p class="help-block text-danger"></p>
+                            </div>
+                        </div>
+                        <div class="row control-group">
+                            <div class="form-group col-xs-12 floating-label-form-group controls">
+                                <label>Amount</label>
+                                <input type="text" class="form-control" placeholder="Amount" id="amount" name="withdrawal[amount]" required data-validation-required-message="Please opening balance.">
+
+                                <input type="hidden" id="type" name="withdrawal[type]" value="Withdrawal">
+                                <p class="help-block text-danger"></p>
+                            </div>
+                        </div>
+                        <div class="row control-group">
+                            <div class="form-group col-xs-12 floating-label-form-group controls">
+                                <label>PIN</label>
+                                <input type="password" class="form-control" placeholder="PIN" id="pin" name="withdrawal[pin]" required data-validation-required-message="Please enter your password.">
+                                <p class="help-block text-danger"></p>
+                            </div>
+                        </div>
+                        <br>
+                        <div id="depButton"></div>
+                        <div class="row">
+                            <div class="form-group col-xs-6">
+                                <button type="submit" class="btn btn-success btn-lg">Make Withdrawal</button>
+                            </div>
+                            <div class="form-group col-xs-6">
+                                <button type="reset" class="btn btn-success btn-lg">Reset</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
