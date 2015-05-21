@@ -29,12 +29,13 @@ class Account
 	property :number, Integer
 	property :balance, Float
 	property :last_transaction, Date
+	has n, :transactions
 
 	belongs_to :user
 
 	before :save do
 		self.last_transaction = Time.new
-		self.number = gen_num(self.type)
+		self.number ||= gen_num(self.type)
 	end
 
 	def gen_num(type)
@@ -60,6 +61,7 @@ class Transaction
 	property :time, String
 	property :type, String
 	belongs_to :account
+	belongs_to :user
 end
 
 DataMapper.finalize
@@ -69,7 +71,11 @@ configure do
 	enable :sessions
 end
 
-post '/user' do
+get "/" do
+	redirect to("/login")
+end
+
+post '/user/new' do
 	user = User.create(params[:user])
 	session[:name] = user.name
 	session[:id] = user.id
@@ -77,22 +83,26 @@ post '/user' do
 end
 
 get '/login' do
-	@title = "Login"
-	erb :login
+	if session[:id] 
+		redirect to("/profile")
+	else
+		@title = "Login"
+		erb :login
+	end
 end
 
-get '/logout' do
+get '/user/logout' do
 	session.clear
 	redirect to("/login")
 end
 
-post '/process' do
+post '/user/login/process' do
 	email = params[:email]
 	password = params[:password]
 	if	@user = User.first(email: email, password: password)
 		session[:id] = @user[:id]
 		session[:name] = @user[:name]
-		redirect to("/account")
+		redirect to("/profile")
 	else
 		redirect to("/login")
 	end
@@ -103,14 +113,20 @@ get '/register' do
 	erb :register
 end
 
-get '/account'  do
-	@title = "My Account"
-	@user = User.get(session[:id])
-	@accounts = Account.all(user_id: session[:id])
-	erb :account
+get '/profile'  do
+	@title = "My Profile"
+	if session[:id] != nil
+		@user = User.get(session[:id])
+		@accounts = Account.all(user_id: session[:id])
+		@transactions = Transaction.all(:account => { :user => @user })
+		puts @transactions
+		erb :profile
+	else
+		redirect to('/login')
+	end
 end
 
-post '/create_account' do
+post '/account/new' do
 	acc = Account.new
 	acc.pin = params[:account]["pin"]
 	acc.type = params[:account]["type"]
@@ -120,11 +136,10 @@ post '/create_account' do
 	@user = User.get(session[:id])
 	acc.user = @user
 	acc.save
-	puts @acc
-	redirect to("/account")	
+	redirect to("/profile")	
 end
 
-get '/createAccount' do
+get '/create' do
 	@title = "Create Account"
 	erb :create_account
 end
@@ -135,7 +150,7 @@ get '/deposit' do
 	erb :deposit
 end
 
-post '/make_deposit' do
+post '/account/credit' do
 	deposit = Transaction.new
 	deposit.time = Time.new
 	deposit.type = params[:deposit]["type"]
@@ -144,9 +159,10 @@ post '/make_deposit' do
 	deposit.amount = params[:deposit]["amount"]
 	account = Account.get(account_id)
 	deposit.account = account
+	deposit.user = User.get(session[:id])
 	account.update(balance: account.balance+deposit.amount, last_transaction: deposit.time)
 	deposit.save
-	redirect to("/account")
+	redirect to("/profile")
 end
 
 get '/withdraw' do
@@ -155,7 +171,7 @@ get '/withdraw' do
 	erb :withdrawal
 end
 
-post '/make_withdrawal' do
+post '/account/debit' do
 	account_id = params[:withdrawal]["account"]
 	@account = Account.get(account_id)
 	pin = params[:withdrawal]["pin"]
@@ -166,22 +182,23 @@ post '/make_withdrawal' do
 		trans.type = params[:withdrawal]["type"]
 		trans.account = @account
 		trans.time = Time.new
+		trans.user = User.get(session[:id])
 		amount = trans.amount
 		amount = amount.to_i
 		balance = @account.balance
 		balance = balance.to_i
 		if balance <= amount
-			puts "You do not have sufficient balance to perform transaction."
+			@msg = "You do not have sufficient balance to perform transaction."
 			redirect to('/withdraw')
 		elsif @account.update(balance: @account.balance-trans.amount, last_transaction: trans.time)
 			trans.save
 		else
-			puts "Unable to perform transaction. Try Again"
+			@msg = "Unable to perform transaction. Try Again"
 			redirect to('/withdraw')
 		end
 	else
-		puts "Incorrect Details. Try Again"
+		@msg = "Incorrect Details. Try Again"
 		redirect to('/withdraw')
 	end
-	redirect to('/account')
+	redirect to('/profile')
 end
