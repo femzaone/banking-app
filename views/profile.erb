@@ -1,3 +1,9 @@
+<% def format(num)
+                        num = num.to_s.split(".")
+                        num[1] = num[1][0..1]
+                        num[0] = num[0].reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse!
+                        num.join(".")
+                    end %>
 <header>
         <div class="container">
             <div class="row">
@@ -65,20 +71,12 @@
             </div>
             <div class="row">
             <% @accounts.each do |account| %>
-                <% i = 1 
-                    def format(num)
-                        num = num.to_s.split(".")
-                        num[1] = num[1][0..1]
-                        num[0] = num[0].reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse!
-                        num.join(".")
-                    end %>
                 <div class="col-lg-4">
                     <p><%= account.type %> Account</p>
                     <p>Account Number: <%= account.number %></p>
                     <p>Balance: ₦ <%= format(account.balance) %></p>
                     <p>Last Transaction: <%= account.last_transaction %></p>
                  </div>
-                 <% i+=1 %>
                  <% end %>
             </div>
             <div class="col-lg-8 col-lg-offset-2 text-center">
@@ -88,48 +86,3 @@
                 </div>
         </div>
     </section>
-
-    <!-- Portfolio Modals -->
-    <div class="portfolio-modal modal fade" id="transModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Transactions</h2>
-                            <hr class="star-primary">
-                            <div class="row">
-                                <table class="table">
-                                <thead>
-                                <th>S/N</th>
-                                <th>Account</th>
-                                <th>Type</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                </thead>
-                                <tbody>
-                                <% i = 1 %>
-                                <% @transactions.each do |trans| %>
-                                    <tr>
-                                    <td><%=  i %></td>
-                                    <td><%=  trans.account.number %></td>
-                                    <td><%=  trans.type %></td>
-                                    <td class="text-right">₦ <%=  format(trans.amount) %></td>
-                                    <td><%=  trans.time %></td>
-                                    <% i+=1 %>
-                                    </tr>
-                                <% end %>
-                                </tbody>
-                                </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
