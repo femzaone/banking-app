@@ -62,6 +62,14 @@ class Transaction
 	property :type, String
 	belongs_to :account
 	belongs_to :user
+
+	def credit(balance, amount)
+		balance + amount
+	end
+
+	def debit(balance, amount)
+		balance - amount
+	end
 end
 
 DataMapper.finalize
@@ -79,7 +87,7 @@ post '/user/new' do
 	user = User.create(params[:user])
 	session[:name] = user.name
 	session[:id] = user.id
-	redirect to("/account")
+	redirect to("/profile")
 end
 
 get '/login' do
@@ -130,12 +138,17 @@ post '/account/new' do
 	acc = Account.new
 	acc.pin = params[:account]["pin"]
 	acc.type = params[:account]["type"]
-	#acc.number = acc.get_number(acc.type)
 	acc.balance = params[:account]["balance"]
-	#acc.last_transaction = params[:account]["last_transaction"]
 	@user = User.get(session[:id])
 	acc.user = @user
-	acc.save
+	if acc.balance != 0
+		acc.save
+		trans = Transaction.new(amount: acc.balance, type: "Deposit", time: Time.new, account: acc, user: @user)
+		trans.save
+	else
+		acc.save
+	end
+	
 	redirect to("/profile")	
 end
 
