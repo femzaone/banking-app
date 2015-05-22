@@ -145,6 +145,7 @@ post '/account/new' do
 		acc.save
 		trans = Transaction.new(amount: acc.balance, type: "Deposit", time: Time.new, account: acc, user: @user)
 		trans.save
+		session[:msg] = "Your account has been created"
 	else
 		acc.save
 	end
@@ -175,6 +176,7 @@ post '/account/credit' do
 	deposit.user = User.get(session[:id])
 	account.update(balance: account.balance+deposit.amount, last_transaction: deposit.time)
 	deposit.save
+	session[:msg] = "Your transaction was successfu! Your new balance is #{deposit.account.balance}"
 	redirect to("/profile")
 end
 
@@ -201,16 +203,17 @@ post '/account/debit' do
 		balance = @account.balance
 		balance = balance.to_i
 		if balance <= amount
-			@msg = "You do not have sufficient balance to perform transaction."
+		session[:msg] = "You do not have sufficient balance to perform transaction."
 			redirect to('/withdraw')
 		elsif @account.update(balance: @account.balance-trans.amount, last_transaction: trans.time)
 			trans.save
+			session[:msg] = "Your have successfully withdrawn #{trans.amount} from your account. your new balance is #{account.balance}"
 		else
-			@msg = "Unable to perform transaction. Try Again"
+			session[:msg] = "Unable to perform transaction. Try Again"
 			redirect to('/withdraw')
 		end
 	else
-		@msg = "Incorrect Details. Try Again"
+		session[:msg] = "Incorrect Details. Try Again"
 		redirect to('/withdraw')
 	end
 	redirect to('/profile')

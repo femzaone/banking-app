@@ -228,7 +228,14 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="js/freelancer.js"></script>
-
+    <% if session[:msg] %>
+    <script type="text/javascript">
+   $(document).ready(function(){
+        alert("<%= session[:msg] %>")
+   });
+</script>
+<% session[:msg] = nil %>
+<% end %>
 </body>
 
 </html>
