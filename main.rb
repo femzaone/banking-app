@@ -130,6 +130,7 @@ get '/profile'  do
 		puts @transactions
 		erb :profile
 	else
+		session[:msg] = "You are not logged in! Please login or register"
 		redirect to('/login')
 	end
 end
@@ -207,7 +208,7 @@ post '/account/debit' do
 			redirect to('/withdraw')
 		elsif @account.update(balance: @account.balance-trans.amount, last_transaction: trans.time)
 			trans.save
-			session[:msg] = "Your have successfully withdrawn #{trans.amount} from your account. your new balance is #{account.balance}"
+			session[:msg] = "Your have successfully withdrawn #{trans.amount} from your account. your new balance is #{trans.account.balance}"
 		else
 			session[:msg] = "Unable to perform transaction. Try Again"
 			redirect to('/withdraw')
